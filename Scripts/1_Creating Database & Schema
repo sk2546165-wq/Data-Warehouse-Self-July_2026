@@ -2,7 +2,7 @@
 /* Creating Databse and Schema for Data Warehhouse Project*/
 
 
-Use Master 
+Use Master; 
 
 
 /* Database Name - Warehouse2026 - */
