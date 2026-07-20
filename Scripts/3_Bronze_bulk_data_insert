@@ -1,1 +1,27 @@
+/*=========================================================================================================
+Bulk Inserting Data into Bronze Tables  
+===========================================================================================================*/
+
+/*===========================================================================================================*/
+
+Truncate table [bronze].[crm_cust_info];
+BULK INSERT [bronze].[crm_cust_info]
+FROM 'C:\Users\RAJESH\OneDrive\Desktop\Sumit\SQL with baraa\BaraaSQL\Data warehouse\datasets\source_crm\cust_info.csv'
+WITH (
+	Firstrow = 2,
+	Fieldterminator = ',',
+	tablock
+);
+
+/*===========================================================================================================*/
+
+TRUNCATE TABLE [bronze].[crm_prd_info];
+Bulk insert [bronze].[crm_prd_info]
+FROM 'C:\Users\RAJESH\OneDrive\Desktop\Sumit\SQL with baraa\BaraaSQL\Data warehouse\datasets\source_crm\prd_info.csv'
+WITH (
+	firstrow = 2,
+	fieldterminator = ',',
+	tablock
+);
+
 
