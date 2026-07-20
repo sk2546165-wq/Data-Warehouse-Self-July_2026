@@ -35,6 +35,43 @@ with (
 	tablock
 );
 
+/*===========================================================================================================*/
+
+truncate table [bronze].[erp_cust_AZ12];
+bulk insert [bronze].[erp_cust_AZ12]
+from 'C:\Users\RAJESH\OneDrive\Desktop\Sumit\SQL with baraa\BaraaSQL\Data warehouse\datasets\source_erp\CUST_AZ12.csv'
+with (
+	firstrow = 2,
+	fieldterminator = ',',
+	tablock
+);
+
+/*===========================================================================================================*/
+
+truncate table [bronze].[erp_loc_A101];
+bulk insert [bronze].[erp_loc_A101]
+from 'C:\Users\RAJESH\OneDrive\Desktop\Sumit\SQL with baraa\BaraaSQL\Data warehouse\datasets\source_erp\LOC_A101.csv'
+with (
+	firstrow = 2,
+	fieldterminator = ',',
+	tablock
+);
+
+
+/*===========================================================================================================*/
+
+truncate table [bronze].[erp_px_cat_g1v2];
+bulk insert [bronze].[erp_px_cat_g1v2]
+from 'C:\Users\RAJESH\OneDrive\Desktop\Sumit\SQL with baraa\BaraaSQL\Data warehouse\datasets\source_erp\PX_CAT_G1V2.csv'
+with (
+	firstrow = 2,
+	fieldterminator = ',',
+	tablock
+);
+
+
+/*=========================Secessfully loaded all data into bronze layer tables=====================================*/
+
 
 
 
