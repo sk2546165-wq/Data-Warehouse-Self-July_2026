@@ -6,3 +6,245 @@ CREATE OR ALTER PROCEDURE silver.load_silver_date AS
 
 BEGIN
 
+
+/*====================================================================================================================
+-----------------CREATING SILVER LAYER TABLES AND LOADING TRANSFORMED DATA SIMULTANEOUSLY-----------------------------
+======================================================================================================================*/
+
+IF object_id('silver.crm_cust_info', 'U') is not null
+	drop table silver.crm_cust_info;
+
+	Create Table silver.crm_cust_info  (
+	cst_id INT,
+	cst_key NVARCHAR(50),
+	cst_firstname NVARCHAR(50),
+	cst_lastname NVARCHAR(50),
+	cst_marital_status NVARCHAR(50),
+	cst_gndr NVARCHAR(50),
+	cst_create_date DATE,
+	dwh_cst_create_date DATETIME2 default GETDATE()
+	);
+
+
+		INSERT INTO silver.crm_cust_info (
+		cst_id ,
+		cst_key ,
+		cst_firstname ,
+		cst_lastname,
+		cst_marital_status,
+		cst_gndr ,
+		cst_create_date
+		)
+
+		select
+		cst_id,
+		cst_key,
+		trim(cst_firstname) firstname,
+		trim(cst_lastname) lastname,
+		case  upper(trim(cst_marital_status))
+			when 'M' then 'Married'
+			when 'S' then 'Single'
+			else 'n/a'
+			end cst_marital_status,
+		case upper(trim(cst_gndr))
+			when 'M' then 'Male'
+			when 'F' then 'Female'
+			else 'n/a'
+			end cst_gndr,
+		cst_create_date
+		from(
+				SELECT*,
+				ROW_NUMBER() over(partition by cst_id order by cst_create_date) flag
+				from bronze.crm_cust_info ) t
+		where flag = 1 and cst_id is not null; 
+
+/*=============================================================================================================================================*/
+/*==============================================================================================================================================*/
+
+IF OBJECT_ID('silver.crm_prd_info', 'U') is not null
+	drop table silver.crm_prd_info;
+
+Create table silver.crm_prd_info (
+prd_id INT,
+prd_nm VARCHAR(255),
+cat_id VARCHAR(255),
+prd_key VARCHAR(255),
+prd_cost INT,
+prd_line VARCHAR(255),
+prd_start_date DATE,
+prd_end_date DATE,
+dwh_prd_create_date DATETIME2 default GETDATE()
+);
+
+
+INSERT INTO silver.crm_prd_info (
+prd_id,
+prd_nm,
+cat_id,
+prd_key,
+prd_cost,
+prd_line,
+prd_start_date,
+prd_end_date
+
+)
+select
+prd_id,
+prd_nm,
+replace(substring(prd_key, 1, 5),'-','_') cat_id,
+substring(prd_key,7,len(prd_key)) prd_key,
+isnull(prd_cost,0) prd_cost,
+isnull(prd_line,'n/a') prd_line,
+try_convert(DATE, prd_start_date, 105)  prd_start_date,
+dateadd(day, -1, lead(try_convert(DATE,prd_start_date, 105)) over(partition by prd_key order by prd_start_date)) prd_end_date
+from bronze.crm_prd_info; 
+
+/*===========================================================================================================================================
+=============================================================================================================================================*/
+
+IF Object_id ('silver.crm_sales_details', 'U') is not null
+    drop table silver.crm_sales_details;
+
+create table silver.crm_sales_details (
+        sls_ord_num NVARCHAR(50),
+        sls_prd_key NVARCHAR(50),
+        prd_key NVARCHAR(50),
+        cst_id INT,
+        sls_order_date Date,
+        sls_ship_date date,
+        sls_due_date date,
+        sls_sales_value INT,
+        sls_quantity INT,
+        sls_price INT,
+        dwh_create_date DATETIME2 default getdate()
+);
+
+INSERT INTO silver.crm_sales_details (
+        sls_ord_num,
+        sls_prd_key,
+        prd_key,
+        cst_id,
+        sls_order_date,
+        sls_ship_date,
+        sls_due_date,
+        sls_sales_value,
+        sls_quantity,
+        sls_price
+)
+
+
+SELECT  [sls_ord_num]
+      ,[sls_prd_key],
+      SUBSTRING(sls_prd_key,1,7) prd_key
+      ,[sls_cust_id] cst_id,
+      case when sls_order_date = 0 or len(sls_order_date) != 8 then null
+      else cast(cast(sls_order_date as varchar) as DATE) 
+      end sls_order_date,
+      case when sls_ship_date = 0 or len(sls_ship_date) != 8 then null
+      else cast(cast(sls_ship_date as varchar) as date) 
+      end sls_ship_date,
+      case when sls_due_date = 0 or len(sls_due_date) != 8 then null 
+      else cast(cast(sls_due_date as varchar) as date)
+      end sls_due_date,
+      case when sls_sales <= 0 or sls_sales is null or sls_sales != sls_quantity * abs(sls_price) 
+      then sls_quantity * abs(sls_price) 
+      else sls_sales
+      end sls_sales_value
+      ,[sls_quantity],
+      case when sls_price  is null or sls_price <= 0 then sls_sales / NULLIF(sls_quantity, 0)
+      else abs(sls_price)
+      end sls_price
+  FROM [Warehouse2026].[bronze].[crm_sales_details];
+
+/*=====================================================================================================================================
+=======================================================================================================================================*/
+
+IF object_id('silver.erp_cust_AZ12', 'U') is not null
+    drop table silver.erp_cust_AZ12;
+
+Create table silver.erp_cust_AZ12 (
+    cid NVARCHAR(50),
+    cst_id INT,
+    bdate Date,
+    gen NVARCHAR(50),
+    dwh_create_date DATETIME2 default getdate()  
+);
+
+INSERT INTO silver.erp_cust_AZ12 (
+    cid,
+    cst_id,
+    bdate,
+    gen
+)
+
+SELECT [cid],
+       SUBSTRING(cid,9,5) cst_id,
+      TRY_CONVERT(date, bdate, 105) bdate,
+      case when upper(trim(gen)) = 'F' or upper(trim(gen)) = 'Female' then 'Female'
+        when upper(trim(gen)) = 'M' or upper(trim(gen)) = 'Male' then 'Male'
+        else 'n/a'
+        end gen
+  FROM [Warehouse2026].[bronze].[erp_cust_AZ12]
+
+/*=====================================================================================================================================
+=======================================================================================================================================*/
+
+IF Object_id('silver.erp_loc_A101', 'U') is not null
+    drop table silver.erp_loc_A101;
+
+Create table silver.erp_loc_A101 (
+    cid NVARCHAR(50),
+    cst_id INT,
+    country NVARCHAR(50),
+    dwh_create_date datetime2 default getdate()
+);
+
+INSERT INTO silver.erp_loc_A101 (
+    cid,
+    cst_id,
+    country
+)
+
+SELECT [cid],
+        SUBSTRING(cid,7,5) cst_id,
+        case when cntry = 'DE' then 'Germany'
+             when cntry = 'US' or cntry = 'USA' then 'United States'
+             when cntry is null or cntry = '' then 'n/a'
+             else cntry
+             end country
+  FROM [Warehouse2026].[bronze].[erp_loc_A101]
+
+/*=====================================================================================================================================
+=======================================================================================================================================*/
+
+IF Object_id('silver.erp_px_cat_g1v2', 'U') is not null
+    drop table silver.erp_px_cat_g1v2;
+
+Create table silver.erp_px_cat_g1v2 (
+    cat_id NVARCHAR(50),
+    cat NVARCHAR(50),
+    subcat NVARCHAR(50),
+    maintenance NVARCHAR(50),
+    dwh_create_date datetime2 default getdate()
+);
+
+INSERT INTO silver.erp_px_cat_g1v2 (
+    cat_id,
+    cat,
+    subcat,
+    maintenance
+)
+
+SELECT [id] cat_id
+      ,[cat]
+      ,[subcat]
+      ,[maintenance]
+  FROM [Warehouse2026].[bronze].[erp_px_cat_g1v2]
+
+
+END
+
+/*========================================================================================================================================
+===================================================Successfully Created Silver Procedure for Automation ==========================================
+==============================================================================================================================================*/
+
