@@ -20,5 +20,47 @@ Create View gold.dim_customer as
 		left join silver.erp_loc_A101 loc
 		on ci.cst_id = loc.cst_id;
 
+/*=================================================================================================================================================
+===================================================================================================================================================*/
 
+Create view gold.dim_product as 
+
+		select
+		prd.prd_key,
+		prd.prd_nm product_name,
+		prd.cat_id category_id,
+		px.cat,
+		px.subcat,
+		px.maintenance,
+		prd.prd_cost product_cost,
+		prd.prd_line product_line,
+		prd.prd_start_date product_start_date,
+		prd.prd_end_date
+		from silver.crm_prd_info prd
+		left join silver.erp_px_cat_g1v2 px
+		on prd.cat_id = px.cat_id; 
+
+/*=================================================================================================================================================
+===================================================================================================================================================*/
+
+Create View gold.fact_sales as 
+
+		select
+		s.sls_ord_num order_number,
+		s.cst_id customer_id,
+		s.sls_prd_key product_key,
+		p.prd_nm product_name,
+		s.sls_order_date order_date,
+		s.sls_ship_date ship_date,
+		s.sls_due_date due_date,
+		s.sls_sales_value sales_value,
+		s.sls_quantity quantity,
+		s.sls_price price
+		from silver.crm_sales_details s
+		left join silver.crm_prd_info p 
+		on s.sls_prd_key = p.prd_key 
+
+/*=================================================================================================================================================
+===================================================================================================================================================
+===================================Sucessfully created gold layer views============================================================================*/
   
