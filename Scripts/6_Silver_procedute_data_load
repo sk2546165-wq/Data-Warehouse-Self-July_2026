@@ -2,7 +2,7 @@
 ===================================Creating Stored Procedure to automate table creation and Data Extraction==================
 =============================================================================================================================*/
 
-CREATE OR ALTER PROCEDURE silver.load_silver_date AS
+CREATE OR ALTER PROCEDURE silver.load_silver_data AS
 
 BEGIN
 
