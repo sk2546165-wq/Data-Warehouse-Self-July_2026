@@ -1,0 +1,24 @@
+/*===============================================================================================================================================
+=================================================================================================================================================
+===================================================Creating Gold layer views=====================================================================*/
+
+Create View gold.dim_customer as 
+
+		select
+		ci.cst_id customer_id,
+		ci.cst_key customer_key,
+		ci.cst_firstname firstname,
+		ci.cst_lastname lastname,
+		ci.cst_marital_status marital_status, 
+		ci.cst_gndr gender,
+		loc.country,
+		ci.cst_create_date creation_date,
+		cs.bdate birthdate
+		from silver.crm_cust_info ci
+		left join silver.erp_cust_AZ12 cs
+		on ci.cst_id = cs.cst_id 
+		left join silver.erp_loc_A101 loc
+		on ci.cst_id = loc.cst_id;
+
+
+  
