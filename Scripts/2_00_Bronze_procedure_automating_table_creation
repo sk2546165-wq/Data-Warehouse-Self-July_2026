@@ -1,8 +1,23 @@
+USE [Warehouse2026]
+GO
+
+/****** Object:  StoredProcedure [bronze].[table_creation]    Script Date: 22-07-2026 20:15:10 ******/
+DROP PROCEDURE [bronze].[table_creation]
+GO
+
+/****** Object:  StoredProcedure [bronze].[table_creation]    Script Date: 22-07-2026 20:15:10 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
 /*=====================================================================================================================================================
 ============================Creating Stored Procedure for Automate Table Creation =====================================================================
 =======================================================================================================================================================*/
 
-CREATE OR ALTER PROCEDURE bronze.table_creation as
+CREATE   PROCEDURE [bronze].[table_creation] as
 
 BEGIN
 
@@ -54,10 +69,10 @@ Create table bronze.crm_sales_details (
 	sls_price INT
 );
 
-/*===========================================================================================================*/\
+/*===========================================================================================================*/
 
-IF OBJECT_ID ('bronze.bronze.erp_cust_AZ12', 'U') is not null
-    DROP Table bronze.bronze.erp_cust_AZ12;
+IF OBJECT_ID ('bronze.erp_cust_AZ12', 'U') is not null
+    DROP Table bronze.erp_cust_AZ12;
 
 create table bronze.erp_cust_AZ12 (
 	cid NVARCHAR(50),
@@ -67,8 +82,8 @@ create table bronze.erp_cust_AZ12 (
 
 /*===========================================================================================================*/
 
-IF OBJECT_ID ('bronze.bronze.erp_loc_A101', 'U') is not null
-    DROP Table bronze.bronze.erp_loc_A101;
+IF OBJECT_ID ('bronze.erp_loc_A101', 'U') is not null
+    DROP Table bronze.erp_loc_A101;
 
 Create table bronze.erp_loc_A101 (
 	cid NVARCHAR(50),
@@ -77,7 +92,7 @@ Create table bronze.erp_loc_A101 (
 
 /*===========================================================================================================*/
 
-IF OBJECT_ID ('bronze.bronze.erp_px_cat_g1v2', 'U') is not null
+IF OBJECT_ID ('bronze.erp_px_cat_g1v2', 'U') is not null
     DROP Table bronze.erp_px_cat_g1v2;
 
 Create table bronze.erp_px_cat_g1v2 (
@@ -92,3 +107,6 @@ END
 /*=====================================================================================================================================
 ============================We have successfully automated table creation ===============================================================
 =======================================================================================================================================*/
+GO
+
+
