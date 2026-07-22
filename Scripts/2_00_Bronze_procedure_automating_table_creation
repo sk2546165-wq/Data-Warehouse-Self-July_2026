@@ -2,7 +2,7 @@
 ============================Creating Stored Procedure for Automate Table Creation =====================================================================
 =======================================================================================================================================================*/
 
-CREATE OR ALTER PROCEDURE bronze.table_creation_silver as
+CREATE OR ALTER PROCEDURE bronze.table_creation as
 
 BEGIN
 
