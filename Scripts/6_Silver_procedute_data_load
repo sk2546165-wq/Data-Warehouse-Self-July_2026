@@ -1,16 +1,4 @@
-USE [Warehouse2026]
-GO
 
-/****** Object:  StoredProcedure [silver].[load_silver_data]    Script Date: 22-07-2026 19:47:47 ******/
-DROP PROCEDURE [silver].[load_silver_data]
-GO
-
-/****** Object:  StoredProcedure [silver].[load_silver_data]    Script Date: 22-07-2026 19:47:47 ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
 
 /*============================================================================================================================
 ===================================Creating Stored Procedure to automate table creation and Data Extraction==================
@@ -261,6 +249,6 @@ END
 /*========================================================================================================================================
 ===================================================Successfully Created Silver Procedure for Automation ==========================================
 ==============================================================================================================================================*/
-GO
+
 
 
