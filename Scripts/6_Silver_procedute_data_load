@@ -137,7 +137,7 @@ INSERT INTO silver.crm_sales_details (
 
 SELECT  [sls_ord_num]
       ,[sls_prd_key],
-      SUBSTRING(sls_prd_key,1,len(sls_prd_key)) prd_key
+      SUBSTRING(sls_prd_key,1,7)) prd_key
       ,[sls_cust_id] cst_id,
       case when sls_order_date = 0 or len(sls_order_date) != 8 then null
       else cast(cast(sls_order_date as varchar) as DATE) 
